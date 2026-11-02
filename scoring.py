@@ -52,7 +52,6 @@ def combine_signals(model_score: float, style_score: float) -> float:
     The weights in config.py are placeholders. Change them, or ignore them and
     write a different rule.
     """
-    # TODO: replace this
     return (
         config.WEIGHT_MODEL_SIGNAL * model_score
         + config.WEIGHT_STYLE_SIGNAL * style_score
@@ -85,12 +84,11 @@ def score_to_label(score: float) -> tuple[str, str]:
     think if they got it on their own work. That question is the whole
     milestone.
     """
-    # TODO: replace this — thresholds are in config.py
     if score >= config.AI_THRESHOLD:
-        return "ai", "PLACEHOLDER — write the high-confidence AI label."
+        return "ai", "The text appears more consistent with AI-generated writing, but this is not proof of authorship. You can request a review."
     if score <= config.HUMAN_THRESHOLD:
-        return "human", "PLACEHOLDER — write the high-confidence human label."
-    return "unsure", "PLACEHOLDER — write the unsure label."
+        return "human", "The text appears more consistent with human writing, but this is not proof of authorship."
+    return "unsure", "We cannot tell reliably who wrote this text. You can request a review."
 
 
 def label_ranges() -> list[tuple[str, str]]:
@@ -100,6 +98,6 @@ def label_ranges() -> list[tuple[str, str]]:
     """
     return [
         ("high-confidence human", f"0.00 – {config.HUMAN_THRESHOLD:.2f}"),
-        ("unsure", f"{config.HUMAN_THRESHOLD:.2f} – {config.AI_THRESHOLD:.2f}"),
+        ("unsure", f"> {config.HUMAN_THRESHOLD:.2f} and < {config.AI_THRESHOLD:.2f}"),
         ("high-confidence AI", f"{config.AI_THRESHOLD:.2f} – 1.00"),
     ]

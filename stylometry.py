@@ -64,8 +64,10 @@ def sentence_length_spread(text: str) -> float:
     `stdev` raises on fewer than two values. Decide what that should return
     before the attack set decides for you.
     """
-    # TODO: replace this
-    return 0.0
+    lengths = [len(words(sentence)) for sentence in sentences(text)]
+    if len(lengths) < 2 or not statistics.mean(lengths):
+        return 0.0
+    return statistics.stdev(lengths) / statistics.mean(lengths)
 
 
 def type_token_ratio(text: str) -> float:
@@ -80,8 +82,8 @@ def type_token_ratio(text: str) -> float:
     directly comparable on it, and if your test inputs vary a lot in length,
     that alone can look like a signal.
     """
-    # TODO: replace this
-    return 0.0
+    tokens = words(text)
+    return len(set(tokens)) / len(tokens) if tokens else 0.0
 
 
 def punctuation_density(text: str) -> float:
@@ -94,8 +96,7 @@ def punctuation_density(text: str) -> float:
         more interesting than full stops, because they vary more between
         writers.
     """
-    # TODO: replace this
-    return 0.0
+    return sum(char in ",;:!?—–-" for char in text) / len(text) if text else 0.0
 
 
 # ── Combining them ───────────────────────────────────────────────────────────
@@ -122,8 +123,12 @@ def style_signal(text: str) -> float:
     you trust it. Plain and ordinary, not formal: formal prose reads as *human*
     to signal one, and it is plain writing that gets accused.
     """
-    # TODO: replace this
-    return 0.5
+    if len(words(text)) < 20 or len(sentences(text)) < 2:
+        return 0.5
+    spread = min(sentence_length_spread(text) / 0.5, 1.0)
+    variety = min(type_token_ratio(text) / 0.8, 1.0)
+    punctuation = min(punctuation_density(text) / 0.03, 1.0)
+    return round(1.0 - (spread + variety + punctuation) / 3.0, 4)
 
 
 if __name__ == "__main__":
@@ -139,4 +144,3 @@ if __name__ == "__main__":
     print(f"type_token_ratio         {type_token_ratio(text)}")
     print(f"punctuation_density      {punctuation_density(text)}")
     print(f"style_signal             {style_signal(text)}   (higher = more likely AI)")
-    print("\nAll zeros? These are stubs — Milestone 4 is where you build them.")

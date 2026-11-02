@@ -42,63 +42,66 @@ Two things worth knowing before you pick numbers:
   a **miss**.
 
 ---
-## 1.
+## 1. False positives on human writing
 
-<!-- Your criterion. It must name a number. -->
+In each of three trials, at most 1 of 10 independently written human samples
+receives the `ai` label. The set must include at least 3 plainly written samples;
+use the same 10 samples in every trial.
 
-
-
-**Why this target:**
-
-
-
----
-
-## 2.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** A false accusation can harm a writer's reputation and
+forces them to defend their work. Allowing at most one makes that cost more
+important than catching every AI-generated submission.
 
 ---
 
-## 3.
+## 2. Separation between groups
 
-<!-- Your criterion. -->
+In each of three trials, the mean combined score for 10 AI-generated samples
+is at least 0.15 higher than the mean for the 10 human samples in criterion 1.
+Use the same samples in every trial and compare the returned `confidence`
+values.
 
-
-
-**Why this target:**
-
-
-
----
-
-## 4.
-
-<!-- Your criterion. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** The signals should provide some useful separation, even
+though individual scores will overlap. A 0.15 gap is large enough to be
+meaningful on a 0–1 scale without demanding perfect classification.
 
 ---
 
-## 5.
+## 3. All labels are reachable
 
-<!-- Your criterion. -->
+In each of three trials, a fixed set of submitted test texts produces all three
+`guess` values: `human`, `unsure`, and `ai`, at least once each. Record the
+texts and returned scores so another person can repeat the check.
 
+**Why this target:** A label that cannot be reached offers no useful choice to
+the reader. Testing actual submissions also checks the signal and scoring
+pipeline, not just the threshold mapping in isolation.
 
+---
 
-**Why this target:**
+## 4. Appeals are recorded
 
+In each of three trials, submit 5 valid appeals against existing decisions.
+All 5 return HTTP 200 with `status` set to `under_review`, and each has a
+corresponding appeal entry in `/log` with its content ID and reasoning; the
+original decision remains in the log.
 
+**Why this target:** A writer who disputes a decision needs an observable path
+to review, and the original decision must remain available for context. Five
+appeals per trial check that the path works repeatedly, not just once.
+
+---
+
+## 5. Invalid text is rejected
+
+In each of three trials, send four `/submit` requests with a valid `creator_id`:
+one missing `text`, one with `text` empty, one containing only whitespace, and
+one with 10,001 characters. All four return HTTP 400 with
+`error: "invalid_request"` and a message, and none creates a decision entry.
+
+**Why this target:** These cases exercise distinct input boundaries in the
+planned contract and should not crash the service or produce misleading
+scores. The 10,000-character limit bounds the work accepted by the endpoint.
 
 ---
 
